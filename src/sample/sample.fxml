@@ -9,7 +9,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -43,37 +43,48 @@
                   <content>
                     <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="762.0" prefWidth="800.0">
                            <children>
-                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <HBox>
                                  <children>
-                                    <Button mnemonicParsing="false" text="Generate keys">
-                                       <VBox.margin>
+                                    <VBox prefHeight="200.0" prefWidth="100.0">
+                                       <children>
+                                          <Button fx:id="createKey" mnemonicParsing="false" onAction="#handleCreateButtonAction" text="Generate keys">
+                                             <VBox.margin>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </VBox.margin>
+                                          </Button>
+                                          <Label text="Public keys">
+                                             <padding>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </padding>
+                                          </Label>
+                                          <TableView maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0">
+                                            <columns>
+                                              <TableColumn prefWidth="75.0" text="Name" />
+                                              <TableColumn prefWidth="75.0" text="Email" />
+                                                <TableColumn prefWidth="75.0" text="Key id" />
+                                            </columns>
+                                          </TableView>
+                                          <Label layoutX="10.0" layoutY="51.0" text="Private keys">
+                                             <padding>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </padding>
+                                          </Label>
+                                          <TableView layoutX="10.0" layoutY="51.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0">
+                                             <columns>
+                                                <TableColumn prefWidth="75.0" text="Name" />
+                                                <TableColumn prefWidth="75.0" text="Email" />
+                                                <TableColumn prefWidth="75.0" text="Key id" />
+                                             </columns>
+                                          </TableView>
+                                       </children>
+                                    </VBox>
+                                    <Button disable="true" mnemonicParsing="false" text="Delete key">
+                                       <HBox.margin>
                                           <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                       </VBox.margin>
+                                       </HBox.margin>
                                     </Button>
-                                    <Label text="Public keys">
-                                       <padding>
-                                          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                       </padding>
-                                    </Label>
-                                    <TableView maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0">
-                                      <columns>
-                                        <TableColumn prefWidth="75.0" text="Name" />
-                                        <TableColumn prefWidth="75.0" text="Email" />
-                                      </columns>
-                                    </TableView>
-                                    <Label layoutX="10.0" layoutY="51.0" text="Private keys">
-                                       <padding>
-                                          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                       </padding>
-                                    </Label>
-                                    <TableView layoutX="10.0" layoutY="51.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0">
-                                       <columns>
-                                          <TableColumn prefWidth="75.0" text="Name" />
-                                          <TableColumn prefWidth="75.0" text="Email" />
-                                       </columns>
-                                    </TableView>
                                  </children>
-                              </VBox>
+                              </HBox>
                            </children>
                            <padding>
                               <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
@@ -94,7 +105,7 @@
    <bottom>
       <HBox BorderPane.alignment="CENTER">
          <children>
-            <Label text="Label" />
+            <Label text="Ognjen Bogicevic 0571/16 &amp; Aleksandar Pantic 0422/16" />
          </children>
          <padding>
             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
