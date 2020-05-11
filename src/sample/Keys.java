@@ -21,8 +21,8 @@ public class Keys {
     static {
         Security.addProvider(new BouncyCastleProvider());
 //        try {
-//            InputStream input = new ByteArrayInputStream(getSecKeyRing());
-//            secretKeys = new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
+//              InputStream input = new ByteArrayInputStream(getSecKeyRing());
+//              secretKeys = new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } catch (PGPException e) {
@@ -100,14 +100,14 @@ public class Keys {
                     pass.toCharArray()
             );
 
-            File privateKey = new File(keysDirPriv + File.separator + "secret4.pgp");
-            File publicKey = new File(keysDirPub + File.separator + "public4.pgp");
+            File privateKey = new File(keysDirPriv + File.separator + name+".pgp");
+            File publicKey = new File(keysDirPub + File.separator + name+".pgp");
 
             PGPPublicKeyRing pgpPubKeyRing = pgpKeyRingGen.generatePublicKeyRing();
             PGPSecretKeyRing pgpSecKeyRing = pgpKeyRingGen.generateSecretKeyRing();
 
-            PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, pgpPubKeyRing); //ovo treba da se sredi
-            PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, pgpSecKeyRing); //i jos staticko ucitavanje kljuceva po pokretanju programa
+            //PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, pgpPubKeyRing); //ovo treba da se sredi
+            //PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, pgpSecKeyRing); //i jos staticko ucitavanje kljuceva po pokretanju programa
 
             exportSecretKey(pgpKeyRingGen, privateKey, true);
             exportPublicKey(pgpKeyRingGen, publicKey, true);
