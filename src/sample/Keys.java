@@ -87,8 +87,8 @@ public class Keys {
 
     public void generateKeyPair(String name, String email, String pass, int dsaSize, int elagamalSize) {
         try {
-            String keysDirPub = System.getProperty("user.dir") + File.separator + "src/keys/public";
-            String keysDirPriv = System.getProperty("user.dir") + File.separator + "src/keys/private";
+            String keysDirPub = System.getProperty("user.dir") + File.separator + "out/keys/public";
+            String keysDirPriv = System.getProperty("user.dir") + File.separator + "out/keys/private";
 
             KeyPair dsaKeyPair = generateDsaKeyPair(dsaSize);
             KeyPair elGamalKeyPair = generateElGamalKeyPair(elagamalSize);
