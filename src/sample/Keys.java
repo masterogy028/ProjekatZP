@@ -1,14 +1,13 @@
 package sample;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.operator.PGPDigestCalculator;
+import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 import java.util.Date;
@@ -19,6 +18,20 @@ public class Keys {
     public static PGPSecretKeyRingCollection secretKeys;
     public static PGPPublicKeyRingCollection publicKeys;
     private static Keys instance;
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+//        try {
+//            InputStream input = new ByteArrayInputStream(getSecKeyRing());
+//            secretKeys = new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (PGPException e) {
+//            e.printStackTrace();
+//        } catch (Exception ee ) {
+//            ee.printStackTrace();
+//        }
+        // ovo treba da se sredi da radi
+    }
     public static Keys getInstance () {
         if(instance!=null)
         return instance;
@@ -27,12 +40,11 @@ public class Keys {
         return instance;
     }
     public Keys() {
-        //Security.addProvider(new BouncyCastleProvider());
 
     }
 
     public static final void exportSecretKey(PGPKeyRingGenerator pgpKeyRingGen, File keyFile, boolean asciiArmor) throws IOException {
-        /*PGPSecretKeyRing pgpSecKeyRing = pgpKeyRingGen.generateSecretKeyRing();
+        PGPSecretKeyRing pgpSecKeyRing = pgpKeyRingGen.generateSecretKeyRing();
 
         if (asciiArmor) {
             ArmoredOutputStream aos = new ArmoredOutputStream(new FileOutputStream(keyFile));
@@ -43,10 +55,10 @@ public class Keys {
             FileOutputStream fos = new FileOutputStream(keyFile);
             pgpSecKeyRing.encode(fos);
             fos.close();
-        }*/
+        }
     }
 
-    public static final void exportPublicKey(PGPKeyRingGenerator pgpKeyRingGen, File keyFile, boolean asciiArmor) throws IOException {/*
+    public static final void exportPublicKey(PGPKeyRingGenerator pgpKeyRingGen, File keyFile, boolean asciiArmor) throws IOException {
         PGPPublicKeyRing pgpPubKeyRing = pgpKeyRingGen.generatePublicKeyRing();
 
         if (asciiArmor) {
@@ -58,7 +70,7 @@ public class Keys {
             FileOutputStream fos = new FileOutputStream(keyFile);
             pgpPubKeyRing.encode(fos);
             fos.close();
-        }*/
+        }
     }
     public static final KeyPair generateDsaKeyPair(int keySize) throws NoSuchAlgorithmException, NoSuchProviderException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", "BC");
@@ -75,7 +87,8 @@ public class Keys {
 
     public void generateKeyPair(String name, String email, String pass, int dsaSize, int elagamalSize) {
         try {
-            String keysDir = System.getProperty("user.dir") + File.separator + "src/OGALEKS/crypto/pgp/keys";
+            String keysDirPub = System.getProperty("user.dir") + File.separator + "src/keys/public";
+            String keysDirPriv = System.getProperty("user.dir") + File.separator + "src/keys/private";
 
             KeyPair dsaKeyPair = generateDsaKeyPair(dsaSize);
             KeyPair elGamalKeyPair = generateElGamalKeyPair(elagamalSize);
@@ -87,17 +100,22 @@ public class Keys {
                     pass.toCharArray()
             );
 
-            File privateKey = new File(keysDir + File.separator + "secret4.asc");
-            File publicKey = new File(keysDir + File.separator + "public4.asc");
+            File privateKey = new File(keysDirPriv + File.separator + "secret4.pgp");
+            File publicKey = new File(keysDirPub + File.separator + "public4.pgp");
 
             PGPPublicKeyRing pgpPubKeyRing = pgpKeyRingGen.generatePublicKeyRing();
             PGPSecretKeyRing pgpSecKeyRing = pgpKeyRingGen.generateSecretKeyRing();
+
+            PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, pgpPubKeyRing); //ovo treba da se sredi
+            PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, pgpSecKeyRing); //i jos staticko ucitavanje kljuceva po pokretanju programa
 
             exportSecretKey(pgpKeyRingGen, privateKey, true);
             exportPublicKey(pgpKeyRingGen, publicKey, true);
 
             System.out.println("Generated private key: " + privateKey.getAbsolutePath());
             System.out.println("Generated public key: " + publicKey.getAbsolutePath());
+
+            System.out.println(" public key: " + pgpPubKeyRing.getPublicKey().getKeySignatures());
         }
         catch (Exception ex) {
             ex.printStackTrace();

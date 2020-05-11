@@ -8,5 +8,6 @@
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="bcpg-jdk15to18-165" level="project" />
+    <orderEntry type="library" name="bcprov-jdk15to18-165" level="project" />
   </component>
 </module>
