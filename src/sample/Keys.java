@@ -13,23 +13,28 @@ import java.security.*;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.bouncycastle.openpgp.PGPSecretKeyRingCollection;
 
 public class Keys {
     public static PGPSecretKeyRingCollection secretKeys;
     public static PGPPublicKeyRingCollection publicKeys;
     private static Keys instance;
+    public static String _keysDirPub = System.getProperty("user.dir") + File.separator + "out\\keys\\public";
+    public static String _keysDirPriv = System.getProperty("user.dir") + File.separator + "out\\keys\\private";
     static {
         Security.addProvider(new BouncyCastleProvider());
-//        try {
-//              InputStream input = new ByteArrayInputStream(getSecKeyRing());
-//              secretKeys = new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (PGPException e) {
-//            e.printStackTrace();
-//        } catch (Exception ee ) {
-//            ee.printStackTrace();
-//        }
+        try {
+                InputStream input = new FileInputStream(_keysDirPub+ File.separator+"arr.pgp");
+                publicKeys = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
+                input = new FileInputStream(_keysDirPriv+ File.separator+"arr.pgp");
+                secretKeys = new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (PGPException e) {
+            e.printStackTrace();
+        } catch (Exception ee ) {
+            ee.printStackTrace();
+        }
         // ovo treba da se sredi da radi
     }
     public static Keys getInstance () {
@@ -87,8 +92,7 @@ public class Keys {
 
     public void generateKeyPair(String name, String email, String pass, int dsaSize, int elagamalSize) {
         try {
-            String keysDirPub = System.getProperty("user.dir") + File.separator + "out/keys/public";
-            String keysDirPriv = System.getProperty("user.dir") + File.separator + "out/keys/private";
+
 
             KeyPair dsaKeyPair = generateDsaKeyPair(dsaSize);
             KeyPair elGamalKeyPair = generateElGamalKeyPair(elagamalSize);
@@ -100,14 +104,14 @@ public class Keys {
                     pass.toCharArray()
             );
 
-            File privateKey = new File(keysDirPriv + File.separator + name+".pgp");
-            File publicKey = new File(keysDirPub + File.separator + name+".pgp");
+            File privateKey = new File(_keysDirPriv + File.separator + name+".pgp");
+            File publicKey = new File(_keysDirPub + File.separator + name+".pgp");
 
             PGPPublicKeyRing pgpPubKeyRing = pgpKeyRingGen.generatePublicKeyRing();
             PGPSecretKeyRing pgpSecKeyRing = pgpKeyRingGen.generateSecretKeyRing();
 
-            //PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, pgpPubKeyRing); //ovo treba da se sredi
-            //PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, pgpSecKeyRing); //i jos staticko ucitavanje kljuceva po pokretanju programa
+            publicKeys=PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, pgpPubKeyRing); //Treba ovako da se dodeli kolekciji zato sto je referenca, u f-ciji ne menja kolekciju
+            secretKeys=PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, pgpSecKeyRing); //Ovo treba nekako da exportujemo u neki fajl
 
             exportSecretKey(pgpKeyRingGen, privateKey, true);
             exportPublicKey(pgpKeyRingGen, publicKey, true);
