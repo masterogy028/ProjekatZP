@@ -57,28 +57,16 @@
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </padding>
                                           </Label>
-                                          <TableView maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0">
+                                          <TableView fx:id="myTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="450.0">
                                             <columns>
-                                              <TableColumn prefWidth="75.0" text="Name" />
-                                              <TableColumn prefWidth="75.0" text="Email" />
-                                                <TableColumn prefWidth="75.0" text="Key id" />
+                                              <TableColumn fx:id="col_name" prefWidth="75.0" text="Name" />
+                                              <TableColumn fx:id="col_email" prefWidth="110.0" text="Email" />
+                                                <TableColumn fx:id="col_id" prefWidth="164.0" text="Key id" />
                                             </columns>
-                                          </TableView>
-                                          <Label layoutX="10.0" layoutY="51.0" text="Private keys">
-                                             <padding>
-                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                             </padding>
-                                          </Label>
-                                          <TableView layoutX="10.0" layoutY="51.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0">
-                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="Name" />
-                                                <TableColumn prefWidth="75.0" text="Email" />
-                                                <TableColumn prefWidth="75.0" text="Key id" />
-                                             </columns>
                                           </TableView>
                                        </children>
                                     </VBox>
-                                    <Button disable="true" mnemonicParsing="false" text="Delete key">
+                                    <Button fx:id="deleteKey" disable="true" mnemonicParsing="false" text="Delete key">
                                        <HBox.margin>
                                           <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                        </HBox.margin>

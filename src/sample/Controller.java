@@ -1,18 +1,23 @@
 package sample;
 
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class Controller {
+public class Controller implements Initializable {
     @FXML
     private TextField nameField;
     @FXML
@@ -21,7 +26,15 @@ public class Controller {
     private TextField passwordField;
     @FXML
     private TextField passwordReTypeField;
-
+    @FXML
+    private TableView<KeyModel> myTable;
+    @FXML
+    private TableColumn<KeyModel, String> col_name;
+    @FXML
+    private TableColumn<KeyModel, String> col_id;
+    @FXML
+    private TableColumn<KeyModel, String> col_email;
+    private ObservableList <KeyModel> data;
     @FXML
     private RadioButton dsa1024;
     @FXML
@@ -38,7 +51,13 @@ public class Controller {
     @FXML
     private Button createKey;
     @FXML
+    private Button deleteKey;
+    @FXML
     private Button finishKey;
+    private Scene scene;
+    private KeyModel currentSelected;
+    private boolean sampleScene = true;
+
     @FXML
     private void handleDsaSizeRadiobox(ActionEvent event) throws IOException {
         if(event.getSource() == dsa1024) {
@@ -63,15 +82,17 @@ public class Controller {
         Parent root;
         Boolean allGood = true;
         if(event.getSource() == createKey) {
+            sampleScene = false;
             stage = (Stage) createKey.getScene().getWindow();
             root = FXMLLoader.load(getClass().getResource("keyCreate.fxml"));
         } else {
+            sampleScene = allGood = finishCreation();
             stage = (Stage) finishKey.getScene().getWindow();
             root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-            allGood = finishCreation();
+
         }
         if(!allGood) return;
-        Scene scene = new Scene(root);
+        scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
 
@@ -81,6 +102,43 @@ public class Controller {
       if (nameField.getText() == null || nameField.getText().equals("") || emailField.getText().equals("")
               || passwordField.getText().equals("")|| passwordReTypeField.getText().equals("") || elagamalSize == 0 || dsaSize == 0) return false;
       Keys.getInstance().generateKeyPair(nameField.getText(), emailField.getText(), passwordField.getText(), dsaSize, elagamalSize);
+      //data.add(new KeyModel(nameField.getText(), emailField.getText(), passwordField.getText()));
+
       return true;
     };
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+//        col_id = new TableColumn("Id");
+//        col_email = new TableColumn("Email");
+//        col_name = new TableColumn("Name");
+
+            data = FXCollections.observableArrayList();
+            Keys.fillData(data);
+            if(col_id != null){
+
+                //col_id.setCellValueFactory(new PropertyValueFactory<>("ID"));
+                //col_name.setCellValueFactory(new PropertyValueFactory<>("NAME"));
+                //col_email.setCellValueFactory(new PropertyValueFactory<>("EMAIL"));
+
+                col_id.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Id"));
+                col_email.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Email"));
+                col_name.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Name"));
+
+                myTable.setItems(data);
+
+                myTable.selectionModelProperty().addListener((Observable observable) -> {
+                            int index = myTable.getSelectionModel().getSelectedIndex();
+                            KeyModel key = myTable.getItems().get(index);
+                            currentSelected = key;
+                            deleteKey.setDisable(false);
+                            System.out.println(key.getName());
+                            // TODO do something with book
+                        }
+                );
+            }
+
+
+    }
+
 }

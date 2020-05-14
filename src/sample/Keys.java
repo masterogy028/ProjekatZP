@@ -1,8 +1,12 @@
 package sample;
+import javafx.collections.ObservableList;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
+import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.jcajce.JcaPGPSecretKeyRingCollection;
 import org.bouncycastle.openpgp.operator.PGPDigestCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.*;
@@ -10,6 +14,7 @@ import org.bouncycastle.openpgp.operator.jcajce.*;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -24,19 +29,67 @@ public class Keys {
     static {
         Security.addProvider(new BouncyCastleProvider());
         try {
-                InputStream input = new FileInputStream(_keysDirPub+ File.separator+"arr.pgp");
-                publicKeys = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
-                input = new FileInputStream(_keysDirPriv+ File.separator+"arr.pgp");
-                secretKeys = new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator());
+            publicKeys = new JcaPGPPublicKeyRingCollection(new ArrayList<>());
+            secretKeys = new JcaPGPSecretKeyRingCollection(new ArrayList<>());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (PGPException e) {
+            e.printStackTrace();
+        }
+        try {
+                File folder = new File(_keysDirPub);
+
+                for (final File fileEntry : folder.listFiles()) {
+                    if (fileEntry.isDirectory()) {
+                        //listFilesForFolder(fileEntry);
+                    } else {
+                        //
+                        // System.out.println(fileEntry.getName());
+                        InputStream input = new FileInputStream(_keysDirPub+ File.separator+fileEntry.getName());
+
+                        BcPGPObjectFactory factory = new BcPGPObjectFactory(PGPUtil.getDecoderStream(input));
+                        Object o = factory.nextObject();
+                        if(o == null) continue;
+                        if(o instanceof PGPPublicKeyRing) {
+                            publicKeys = PGPPublicKeyRingCollection.addPublicKeyRing(publicKeys, (PGPPublicKeyRing) o);
+                            //System.out.println(publicKeys.size());
+                        }
+
+                    }
+                }
+
+                folder = new File(_keysDirPriv);
+
+                for (final File fileEntry : folder.listFiles()) {
+                    if (fileEntry.isDirectory()) {
+                        //listFilesForFolder(fileEntry);
+                    } else {
+                        //System.out.println(fileEntry.getName());
+                        InputStream input = new FileInputStream(_keysDirPriv+ File.separator+fileEntry.getName());
+
+                        BcPGPObjectFactory factory = new BcPGPObjectFactory(PGPUtil.getDecoderStream(input));
+                        Object o = factory.nextObject();
+                        if(o == null) continue;
+                        if(o instanceof PGPSecretKeyRing) {
+                            secretKeys = PGPSecretKeyRingCollection.addSecretKeyRing(secretKeys, (PGPSecretKeyRing)o);
+                        }
+
+                    }
+                }
+                updateTable();
+
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception ee ) {
             ee.printStackTrace();
         }
         // ovo treba da se sredi da radi
     }
+
+    public static void updateTable() {
+
+    }
+
     public static Keys getInstance () {
         if(instance!=null)
         return instance;
@@ -88,6 +141,18 @@ public class Keys {
         keyPairGenerator.initialize(keySize);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         return keyPair;
+    }
+
+    public static void fillData(ObservableList<KeyModel> data) {
+        for(PGPPublicKeyRing ring: publicKeys) {
+            for (Iterator<String> it = ring.getPublicKey().getUserIDs(); it.hasNext(); ) {
+                String userIds = it.next();
+                String ui[] = userIds.split("<|\\>");
+                System.out.println(ui[0]);
+                data.add(new KeyModel(ui[0], ui[1], Long.toHexString(ring.getPublicKey().getKeyID())));
+
+            }
+        }
     }
 
     public void generateKeyPair(String name, String email, String pass, int dsaSize, int elagamalSize) {

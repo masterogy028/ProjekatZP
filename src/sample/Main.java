@@ -15,6 +15,7 @@ public class Main extends Application {
     Scene scene1, scene2;
     @Override
     public void start(Stage primaryStage) throws Exception{
+        Keys.getInstance();
         mainStage = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("OGALEK en/de/cryptor");
