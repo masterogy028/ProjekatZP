@@ -56,7 +56,6 @@ public class Controller implements Initializable {
     private Button finishKey;
     private Scene scene;
     private KeyModel currentSelected;
-    private boolean sampleScene = true;
 
     @FXML
     private void handleDsaSizeRadiobox(ActionEvent event) throws IOException {
@@ -82,14 +81,12 @@ public class Controller implements Initializable {
         Parent root;
         Boolean allGood = true;
         if(event.getSource() == createKey) {
-            sampleScene = false;
             stage = (Stage) createKey.getScene().getWindow();
             root = FXMLLoader.load(getClass().getResource("keyCreate.fxml"));
         } else {
-            sampleScene = allGood = finishCreation();
+            allGood = finishCreation();
             stage = (Stage) finishKey.getScene().getWindow();
             root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-
         }
         if(!allGood) return;
         scene = new Scene(root);
@@ -98,28 +95,20 @@ public class Controller implements Initializable {
 
     }
     private Boolean finishCreation(){
-        //System.out.println("res: " + nameField.getText());
       if (nameField.getText() == null || nameField.getText().equals("") || emailField.getText().equals("")
               || passwordField.getText().equals("")|| passwordReTypeField.getText().equals("") || elagamalSize == 0 || dsaSize == 0) return false;
-      Keys.getInstance().generateKeyPair(nameField.getText(), emailField.getText(), passwordField.getText(), dsaSize, elagamalSize);
-      //data.add(new KeyModel(nameField.getText(), emailField.getText(), passwordField.getText()));
+      // provera da se implementira
 
+      Keys.getInstance().generateKeyPair(nameField.getText(), emailField.getText(), passwordField.getText(), dsaSize, elagamalSize);
       return true;
     };
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        col_id = new TableColumn("Id");
-//        col_email = new TableColumn("Email");
-//        col_name = new TableColumn("Name");
 
             data = FXCollections.observableArrayList();
             Keys.fillData(data);
             if(col_id != null){
-
-                //col_id.setCellValueFactory(new PropertyValueFactory<>("ID"));
-                //col_name.setCellValueFactory(new PropertyValueFactory<>("NAME"));
-                //col_email.setCellValueFactory(new PropertyValueFactory<>("EMAIL"));
 
                 col_id.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Id"));
                 col_email.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Email"));
@@ -131,9 +120,9 @@ public class Controller implements Initializable {
                             int index = myTable.getSelectionModel().getSelectedIndex();
                             KeyModel key = myTable.getItems().get(index);
                             currentSelected = key;
-                            deleteKey.setDisable(false);
-                            System.out.println(key.getName());
-                            // TODO do something with book
+                            deleteKey.setDisable(false); // ovo bi trebalo da kada se selektuje red u tabeli promeni enable property deleteButton-a ali
+                            System.out.println(key.getName()); //  ne radi iz nekog razloga, tj.  ne ulazi se u ovu funkciju
+
                         }
                 );
             }
