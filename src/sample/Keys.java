@@ -144,15 +144,21 @@ public class Keys {
     }
 
     public static void fillData(ObservableList<KeyModel> data) {
-        for(PGPPublicKeyRing ring: publicKeys) {
-            for (Iterator<String> it = ring.getPublicKey().getUserIDs(); it.hasNext(); ) {
-                String userIds = it.next();
+        PGPPublicKeyRing publicRing;
+        PGPSecretKeyRing secretRing;
+        Iterator<PGPSecretKeyRing> sit = secretKeys.getKeyRings();
+        for(Iterator<PGPPublicKeyRing> pit = publicKeys.getKeyRings(); pit.hasNext();) {
+            publicRing = pit.next();
+            secretRing = sit.next();
+
+            for (Iterator<String> itp = publicRing.getPublicKey().getUserIDs(); itp.hasNext(); ) {
+                String userIds = itp.next();
                 String ui[] = userIds.split("<|\\>");
                 System.out.println(ui[0]);
-                data.add(new KeyModel(ui[0], ui[1], Long.toHexString(ring.getPublicKey().getKeyID())));
-
+                data.add(new KeyModel(ui[0], ui[1], Long.toHexString(publicRing.getPublicKey().getKeyID()),publicRing, secretRing));
             }
         }
+
     }
 
     public void generateKeyPair(String name, String email, String pass, int dsaSize, int elagamalSize) {
@@ -218,5 +224,25 @@ public class Keys {
 
         keyRingGen.addSubKey(elGamalPgpKeyPair);
         return keyRingGen;
+    }
+    public static void deleteKeyring(PGPPublicKeyRing publicRing, PGPSecretKeyRing secretRing, String fileName){
+
+        JcaPGPPublicKeyRingCollection.removePublicKeyRing(publicKeys, publicRing);
+        JcaPGPSecretKeyRingCollection.removeSecretKeyRing(secretKeys, secretRing);
+        fileName = fileName.split(" ")[0];
+        File file = new File(_keysDirPub+"\\"+fileName+".pgp");
+        file.delete();
+        file = new File(_keysDirPriv+"\\"+fileName+".pgp");
+        System.out.println("deleting:"+_keysDirPriv+"\\"+fileName+".pgp"+":");
+        if(file.delete())
+        {
+            System.out.println("File deleted successfully");
+        }
+        else
+        {
+            System.out.println("Failed to delete the file");
+        }
+        // PGPPublicKeyRingCollection.removePublicKeyRing(publicKeys, )
+
     }
 }

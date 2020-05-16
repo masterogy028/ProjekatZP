@@ -80,6 +80,7 @@ public class Controller implements Initializable {
         Stage stage;
         Parent root;
         Boolean allGood = true;
+
         if(event.getSource() == createKey) {
             stage = (Stage) createKey.getScene().getWindow();
             root = FXMLLoader.load(getClass().getResource("keyCreate.fxml"));
@@ -93,6 +94,15 @@ public class Controller implements Initializable {
         stage.setScene(scene);
         stage.show();
 
+    }
+    @FXML
+    private void handleDeleteKeyButtonAction(ActionEvent event) throws IOException {
+        if(currentSelected != null){
+            Keys.deleteKeyring(currentSelected.getPublicRing(), currentSelected.getSecretRing(), currentSelected.getName());
+            data.remove(currentSelected);
+            currentSelected = null;
+            deleteKey.setDisable(true);
+        }
     }
     private Boolean finishCreation(){
       if (nameField.getText() == null || nameField.getText().equals("") || emailField.getText().equals("")
@@ -116,7 +126,7 @@ public class Controller implements Initializable {
 
                 myTable.setItems(data);
 
-                myTable.selectionModelProperty().addListener((Observable observable) -> {
+                myTable.getSelectionModel().selectedItemProperty().addListener((Observable observable) -> {
                             int index = myTable.getSelectionModel().getSelectedIndex();
                             KeyModel key = myTable.getItems().get(index);
                             currentSelected = key;
@@ -125,6 +135,7 @@ public class Controller implements Initializable {
 
                         }
                 );
+
             }
 
 
