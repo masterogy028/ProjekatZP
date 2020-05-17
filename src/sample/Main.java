@@ -9,10 +9,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    Stage mainStage;
-    Label somelabel;
-    Button someButton;
-    Scene scene1, scene2;
+    public static Stage mainStage;
     @Override
     public void start(Stage primaryStage) throws Exception{
         Keys.getInstance();
