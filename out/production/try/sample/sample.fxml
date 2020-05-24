@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.paint.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -9,7 +10,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -52,7 +53,7 @@
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </VBox.margin>
                                           </Button>
-                                          <Label text="Public keys">
+                                          <Label text="Key pairs">
                                              <padding>
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </padding>
@@ -63,6 +64,9 @@
                                               <TableColumn fx:id="col_email" prefWidth="110.0" text="Email" />
                                                 <TableColumn fx:id="col_id" prefWidth="164.0" text="Key id" />
                                             </columns>
+                                             <VBox.margin>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </VBox.margin>
                                           </TableView>
                                        </children>
                                     </VBox>
@@ -80,11 +84,100 @@
                         </AnchorPane>
                   </content>
                 </Tab>
-                <Tab text="EncryptDecrypt">
+                <Tab text="Encrypt">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <BorderPane prefHeight="546.0" prefWidth="800.0">
+                                 <left>
+                                    <TextArea prefHeight="547.0" prefWidth="535.0" BorderPane.alignment="CENTER">
+                                       <BorderPane.margin>
+                                          <Insets bottom="25.0" left="8.0" right="8.0" top="8.0" />
+                                       </BorderPane.margin>
+                                    </TextArea>
+                                 </left>
+                                 <right>
+                                    <VBox fx:id="myEncVBox" prefHeight="546.0" prefWidth="243.0" BorderPane.alignment="CENTER">
+                                       <children>
+                                          <Label fx:id="noKeySelectedLabel" text="No key selected" textFill="RED" />
+                                          <TableView fx:id="myTableEnc" prefHeight="200.0" prefWidth="200.0">
+                                            <columns>
+                                              <TableColumn fx:id="col_name_enc" prefWidth="75.0" text="Name" />
+                                              <TableColumn fx:id="col_email_enc" prefWidth="75.0" text="Email" />
+                                                <TableColumn fx:id="col_id_enc" prefWidth="92.0" text="Key id" />
+                                            </columns>
+                                          </TableView>
+                                          <CheckBox fx:id="EncryptCheckBox" mnemonicParsing="false" text="Encrypt" />
+                                          <CheckBox fx:id="radixCheckBox" mnemonicParsing="false" text="Radix-64" />
+                                          <CheckBox fx:id="ZipCheckBox" mnemonicParsing="false" text="Zip" />
+                                          <CheckBox fx:id="SignatureCheckBox" mnemonicParsing="false" text="Signature" />
+                                          <Label text="Passphrase" />
+                                          <TextField fx:id="passphraseTextField" disable="true">
+                                             <VBox.margin>
+                                                <Insets bottom="8.0" right="8.0" top="8.0" />
+                                             </VBox.margin>
+                                          </TextField>
+
+                                          <Label fx:id="selectPrivatekeyLabel" text="select private key:" visible="false" />
+                                          <ComboBox fx:id="selectPrivateKeyComboBox" prefWidth="150.0" visible="false" />
+                                           <Label fx:id="toSelectedKeysLabel" text="selected public keys:" visible="false">
+                                               <VBox.margin>
+                                                   <Insets bottom="0" left="8.0" right="8.0" top="8.0" />
+                                               </VBox.margin>
+                                           </Label>
+                                           <Label fx:id="selectedKeysLabel" text="key" visible="false" />
+                                          <Button fx:id="EncryptButton" mnemonicParsing="false" text="Encrypt" />
+                                       </children>
+                                    </VBox>
+                                 </right>
+                              </BorderPane>
+                           </children></AnchorPane>
                   </content>
                 </Tab>
+                  <Tab text="Decrypt">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <BorderPane prefHeight="546.0" prefWidth="800.0">
+                                 <right>
+                                    <VBox prefHeight="546.0" prefWidth="243.0" BorderPane.alignment="CENTER">
+                                       <children>
+                                          <Label text="No key selected" textFill="RED" />
+                                          <Label text="Encryption" />
+                                          <CheckBox mnemonicParsing="false" text="CheckBox" />
+                                          <Label text="Radix-64" />
+                                          <CheckBox mnemonicParsing="false" text="CheckBox" />
+                                          <Label text="ZIP" />
+                                          <CheckBox mnemonicParsing="false" text="CheckBox" />
+                                          <Button alignment="BOTTOM_CENTER" contentDisplay="BOTTOM" mnemonicParsing="false" text="Decrypt">
+                                             <VBox.margin>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </VBox.margin>
+                                          </Button>
+                                       </children>
+                                    </VBox>
+                                 </right>
+                                 <left>
+                                    <VBox prefHeight="200.0" prefWidth="550.0" BorderPane.alignment="CENTER">
+                                       <children>
+                                          <Button mnemonicParsing="false" text="Select message">
+                                             <VBox.margin>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </VBox.margin>
+                                          </Button>
+                                          <TextArea disable="true" prefHeight="471.0" prefWidth="534.0">
+                                             <VBox.margin>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                             </VBox.margin>
+                                          </TextArea>
+                                       </children>
+                                    </VBox>
+                                 </left>
+                              </BorderPane>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
               </tabs>
             </TabPane>
          </children>

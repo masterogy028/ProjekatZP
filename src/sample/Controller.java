@@ -22,9 +22,36 @@ import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyEncryptorBuilder;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
+    @FXML
+    private Button EncryptButton;
+
+    @FXML
+    private Label selectPrivatekeyLabel;
+    @FXML
+    private ComboBox selectPrivateKeyComboBox;
+    @FXML
+    private TextField passphraseTextField;
+    @FXML
+    private CheckBox radixCheckBox;
+    @FXML
+    private CheckBox EncryptCheckBox;
+    @FXML
+    private CheckBox ZipCheckBox;
+    @FXML
+    private CheckBox SignatureCheckBox;
+
+    @FXML
+    private VBox myEncVBox;
+    @FXML
+    private Label selectedKeysLabel;
+    @FXML
+    private Label toSelectedKeysLabel;
+    @FXML
+    private Label noKeySelectedLabel;
     @FXML
     private TextField nameField;
     @FXML
@@ -36,11 +63,19 @@ public class Controller implements Initializable {
     @FXML
     private TableView<KeyModel> myTable;
     @FXML
+    private TableView<KeyModel> myTableEnc;
+    @FXML
     private TableColumn<KeyModel, String> col_name;
     @FXML
     private TableColumn<KeyModel, String> col_id;
     @FXML
     private TableColumn<KeyModel, String> col_email;
+    @FXML
+    private TableColumn<KeyModel, String> col_name_enc;
+    @FXML
+    private TableColumn<KeyModel, String> col_id_enc;
+    @FXML
+    private TableColumn<KeyModel, String> col_email_enc;
     private ObservableList <KeyModel> data;
     @FXML
     private RadioButton dsa1024;
@@ -52,7 +87,7 @@ public class Controller implements Initializable {
     private RadioButton elgamal1024;
     @FXML
     private RadioButton elgamal4096;
-
+    private HashSet<KeyModel> selected;
     private int dsaSize = 0;
     private int elagamalSize = 0;
     @FXML
@@ -62,7 +97,7 @@ public class Controller implements Initializable {
     @FXML
     private Button finishKey;
     private Scene scene;
-    private KeyModel currentSelected;
+    public static KeyModel currentSelected;
 
     @FXML
     private void handleDsaSizeRadiobox(ActionEvent event) throws IOException {
@@ -152,29 +187,79 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        selected = new HashSet<>();
+        data = FXCollections.observableArrayList();
+        Keys.fillData(data);
+        if(col_id != null){
 
-            data = FXCollections.observableArrayList();
-            Keys.fillData(data);
-            if(col_id != null){
+            col_id.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Id"));
+            col_email.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Email"));
+            col_name.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Name"));
 
-                col_id.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Id"));
-                col_email.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Email"));
-                col_name.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Name"));
+            myTable.setItems(data);
+            myTable.getSelectionModel().selectedItemProperty().addListener((Observable observable) -> {
+                        int index = myTable.getSelectionModel().getSelectedIndex();
+                        KeyModel key = myTable.getItems().get(index);
+                        currentSelected = key;
+                        deleteKey.setDisable(false);
+                        System.out.println(key.getName());
 
-                myTable.setItems(data);
+                    }
+            );
+        }
+        if(col_id_enc != null){
 
-                myTable.getSelectionModel().selectedItemProperty().addListener((Observable observable) -> {
-                            int index = myTable.getSelectionModel().getSelectedIndex();
-                            KeyModel key = myTable.getItems().get(index);
-                            currentSelected = key;
-                            deleteKey.setDisable(false); // ovo bi trebalo da kada se selektuje red u tabeli promeni enable property deleteButton-a ali
-                            System.out.println(key.getName()); //  ne radi iz nekog razloga, tj.  ne ulazi se u ovu funkciju
+            col_id_enc.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Id"));
+            col_email_enc.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Email"));
+            col_name_enc.setCellValueFactory(new PropertyValueFactory<KeyModel, String>("Name"));
 
+            myTableEnc.setItems(data);
+            myTableEnc.getSelectionModel().selectedItemProperty().addListener((Observable observable) -> {
+                        int index = myTableEnc.getSelectionModel().getSelectedIndex();
+                        KeyModel key = myTableEnc.getItems().get(index);
+                        if(!selected.contains(key))
+                            selected.add(key);
+                        else
+                            selected.remove(key);
+                        if(selected.size() == 0) {
+                            noKeySelectedLabel.setVisible(true);
+                            selectedKeysLabel.setVisible(false);
+                            toSelectedKeysLabel.setVisible(false);
                         }
-                );
+                        else {
+                            toSelectedKeysLabel.setVisible(true);
+                            noKeySelectedLabel.setVisible(false);
+                            selectedKeysLabel.setVisible(true);
+                            String keysString = "";
+                            for (KeyModel keyModel: selected) {
+                                keysString = keysString + "\n" + keyModel.getName();
+                            }
+                            selectedKeysLabel.setText(keysString);
+                        }
 
-            }
 
+                        System.out.println(key.getName());
+                        System.out.println("selected: " + selected.size());
+
+                    }
+            );
+            SignatureCheckBox.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    CheckBox sig = (CheckBox) event.getSource();
+                    // System.out.println(sig.selectedProperty().get());
+                    if(sig.selectedProperty().get()) {
+                        passphraseTextField.setDisable(false);
+                        selectPrivateKeyComboBox.setVisible(true);
+                        selectPrivatekeyLabel.setVisible(true);
+                    } else {
+                        passphraseTextField.setDisable(true);
+                        selectPrivateKeyComboBox.setVisible(false);
+                        selectPrivatekeyLabel.setVisible(false);
+                    }
+                }
+            });
+        }
 
     }
 

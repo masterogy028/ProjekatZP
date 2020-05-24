@@ -16,7 +16,7 @@ public class Main extends Application {
         mainStage = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("OGALEK en/de/cryptor");
-        primaryStage.setScene(new Scene(root, 800, 600));
+        primaryStage.setScene(new Scene(root, 1000, 700));
         primaryStage.show();
     }
 
