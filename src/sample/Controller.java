@@ -14,18 +14,28 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyEncryptorBuilder;
 
+import javax.swing.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.security.NoSuchProviderException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
+    @FXML
+    private TextArea myTextAreaMessage;
     @FXML
     private Button EncryptButton;
 
@@ -138,6 +148,31 @@ public class Controller implements Initializable {
 
     }
     @FXML
+    private void handleEncryptButtonAction(ActionEvent event) throws IOException {
+
+        if(selected.size() == 0 && EncryptCheckBox.selectedProperty().getValue()) return;
+
+        FileChooser fc = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PGP files (*.pgp)", "*.pgp");
+        fc.getExtensionFilters().add(extFilter);
+
+        File file = fc.showSaveDialog(Main.mainStage);
+
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            Iterator<PGPPublicKey> it = selected.iterator().next().getPublicRing().getPublicKeys();
+            PGPPublicKey masterKey =  it.next();
+            PGPPublicKey subKey =  it.next();
+            fos.write(EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(), subKey,
+                    false, false , false));
+
+        } catch (PGPException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+    @FXML
     private void handleDeleteKeyButtonAction(ActionEvent event) throws IOException {
         if(currentSelected != null){
             final Stage dialog = new Stage();
@@ -180,7 +215,6 @@ public class Controller implements Initializable {
       if (nameField.getText() == null || nameField.getText().equals("") || emailField.getText().equals("")
               || passwordField.getText().equals("")|| passwordReTypeField.getText().equals("") || elagamalSize == 0 || dsaSize == 0) return false;
       // provera da se implementira
-
       Keys.getInstance().generateKeyPair(nameField.getText(), emailField.getText(), passwordField.getText(), dsaSize, elagamalSize);
       return true;
     };

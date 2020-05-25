@@ -131,7 +131,7 @@ public class Keys {
         }
     }
     public static final KeyPair generateDsaKeyPair(int keySize) throws NoSuchAlgorithmException, NoSuchProviderException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", "BC");
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
         keyPairGenerator.initialize(keySize);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         return keyPair;

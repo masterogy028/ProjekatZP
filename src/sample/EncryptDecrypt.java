@@ -1,5 +1,6 @@
 package sample;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,28 +9,19 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
+import org.bouncycastle.bcpg.CompressionAlgorithmTags;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
-import org.bouncycastle.openpgp.PGPCompressedData;
-import org.bouncycastle.openpgp.PGPCompressedDataGenerator;
-import org.bouncycastle.openpgp.PGPEncryptedDataGenerator;
-import org.bouncycastle.openpgp.PGPException;
-import org.bouncycastle.openpgp.PGPLiteralData;
-import org.bouncycastle.openpgp.PGPLiteralDataGenerator;
-import org.bouncycastle.openpgp.PGPPrivateKey;
-import org.bouncycastle.openpgp.PGPPublicKey;
-import org.bouncycastle.openpgp.PGPSecretKey;
-import org.bouncycastle.openpgp.PGPSignature;
-import org.bouncycastle.openpgp.PGPSignatureGenerator;
-import org.bouncycastle.openpgp.PGPSignatureSubpacketGenerator;
-import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
+import org.bouncycastle.util.io.Streams;
 
 public class EncryptDecrypt {
 
@@ -96,39 +88,71 @@ public class EncryptDecrypt {
 
         return encOut.toString();
     }
-    public static String encryptByteArray(byte[] clearData,
-                                          PGPPublicKey encKey, boolean withIntegrityCheck, boolean armor)
+    public static byte[] encrypt(final byte[] message, final PGPPublicKey publicKey, boolean armored, boolean compress, boolean encrypt )
+            throws PGPException
+    {
+        try
+        {
+            final ByteArrayInputStream in = new ByteArrayInputStream( message );
+            final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+            final PGPLiteralDataGenerator literal = new PGPLiteralDataGenerator();
+            final PGPCompressedDataGenerator comData = new PGPCompressedDataGenerator( CompressionAlgorithmTags.ZIP );
+            final OutputStream pOut = literal.open( comData.open( bOut ), PGPLiteralData.BINARY, "filename", in.available(), new Date() );
+            Streams.pipeAll( in, pOut );
+            comData.close();
+
+            final byte[] bytes = bOut.toByteArray();
+
+            final PGPEncryptedDataGenerator generator = new PGPEncryptedDataGenerator(
+                    new JcePGPDataEncryptorBuilder( SymmetricKeyAlgorithmTags.CAST5 ).setWithIntegrityPacket( true )
+                            .setSecureRandom(new SecureRandom() ).setProvider( "BC" ) );
+
+            generator.addMethod( new JcePublicKeyKeyEncryptionMethodGenerator( publicKey ).setProvider( "BC" ) );
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            OutputStream theOut = armored ? new ArmoredOutputStream( out ) : out;
+            OutputStream cOut = generator.open( theOut, bytes.length );
+            cOut.write( bytes );
+            cOut.close();
+            theOut.close();
+            return out.toByteArray();
+        }
+        catch ( Exception e )
+        {
+            throw new PGPException( "Error in encrypt", e );
+        }
+    }
+    public static String encryptMessage(byte[] clearData, HashSet<KeyModel> encKeys, boolean withIntegrityCheck, boolean armor, boolean encrypt, boolean sign, boolean zip)
             throws IOException, PGPException, NoSuchProviderException {
 
         ByteArrayOutputStream encOut = new ByteArrayOutputStream();
-
+        // Radix-64
         OutputStream out = encOut;
         if (armor) {
             out = new ArmoredOutputStream(out);
         }
+        //
 
+
+        // ZIP
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        OutputStream cos = bOut;
 
-        PGPCompressedDataGenerator comData = new PGPCompressedDataGenerator(
-                PGPCompressedDataGenerator.ZIP);
-        OutputStream cos = comData.open(bOut); // open it with the final
-
+        PGPCompressedDataGenerator comData = new PGPCompressedDataGenerator(PGPCompressedDataGenerator.ZIP);
+        cos = comData.open(bOut); // open it with the final
         PGPLiteralDataGenerator lData = new PGPLiteralDataGenerator();
-
         OutputStream pOut = lData.open(cos, PGPLiteralData.BINARY,
-                PGPLiteralData.CONSOLE, clearData.length, // length of clear
+                "poruka", clearData.length, // length of clear
                 // data
                 new Date() // current time
         );
         pOut.write(clearData);
-
         lData.close();
         comData.close();
 
+        //Encryption
         //PGPEncryptedDataGenerator cPk = new PGPEncryptedDataGenerator(PGPEncryptedData.CAST5, withIntegrityCheck, new SecureRandom(), "BC");
         final PGPEncryptedDataGenerator cPk = new PGPEncryptedDataGenerator(
                 new JcePGPDataEncryptorBuilder( SymmetricKeyAlgorithmTags.AES_256 ).setWithIntegrityPacket( true ).setSecureRandom( new SecureRandom() )
-
                         .setProvider( "BC" ) );
         cPk.addMethod( new JcePublicKeyKeyEncryptionMethodGenerator( Controller.currentSelected.getPublicRing().getPublicKey() ).setProvider( "BC" ) );
 
@@ -139,7 +163,7 @@ public class EncryptDecrypt {
         cOut.write(bytes); // obtain the actual bytes from the compressed stream
 
         cOut.close();
-
+        //
         out.close();
 
         return encOut.toString();

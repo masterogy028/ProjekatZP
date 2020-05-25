@@ -90,7 +90,7 @@
                            <children>
                               <BorderPane prefHeight="546.0" prefWidth="800.0">
                                  <left>
-                                    <TextArea prefHeight="547.0" prefWidth="535.0" BorderPane.alignment="CENTER">
+                                    <TextArea fx:id="myTextAreaMessage" prefHeight="547.0" prefWidth="535.0" BorderPane.alignment="CENTER">
                                        <BorderPane.margin>
                                           <Insets bottom="25.0" left="8.0" right="8.0" top="8.0" />
                                        </BorderPane.margin>
@@ -126,7 +126,7 @@
                                                </VBox.margin>
                                            </Label>
                                            <Label fx:id="selectedKeysLabel" text="key" visible="false" />
-                                          <Button fx:id="EncryptButton" mnemonicParsing="false" text="Encrypt" />
+                                          <Button fx:id="EncryptButton" mnemonicParsing="false" onAction="#handleEncryptButtonAction" text="Encrypt" />
                                        </children>
                                     </VBox>
                                  </right>
