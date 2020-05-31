@@ -1,5 +1,6 @@
 package sample;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TextInputDialog;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -17,6 +18,7 @@ import java.security.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.bouncycastle.openpgp.PGPSecretKeyRingCollection;
 
@@ -131,7 +133,7 @@ public class Keys {
         }
     }
     public static final KeyPair generateDsaKeyPair(int keySize) throws NoSuchAlgorithmException, NoSuchProviderException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", "BC");
         keyPairGenerator.initialize(keySize);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         return keyPair;
@@ -145,10 +147,11 @@ public class Keys {
 
     public static void fillData(ObservableList<KeyModel> data) {
         PGPPublicKeyRing publicRing;
-        PGPSecretKeyRing secretRing;
+        PGPSecretKeyRing secretRing = null;
         Iterator<PGPSecretKeyRing> sit = secretKeys.getKeyRings();
         for(Iterator<PGPPublicKeyRing> pit = publicKeys.getKeyRings(); pit.hasNext();) {
             publicRing = pit.next();
+            if(sit.hasNext())
             secretRing = sit.next();
 
             for (Iterator<String> itp = publicRing.getPublicKey().getUserIDs(); itp.hasNext(); ) {
@@ -159,6 +162,29 @@ public class Keys {
             }
         }
 
+    }
+
+    public static String getPassword(long id) {
+
+        try {
+            TextInputDialog dialog = new TextInputDialog("pasword");
+            dialog.setTitle("Password");
+            PGPSecretKeyRing keyRing = Keys.instance.secretKeys.getSecretKeyRing(id);
+            if (keyRing == null) {
+                return null;
+            }
+            dialog.setHeaderText(keyRing.getSecretKey().getUserIDs().next());
+            dialog.setContentText("Please enter your password:");
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                return result.get();
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        return "";
     }
 
     public void generateKeyPair(String name, String email, String pass, int dsaSize, int elagamalSize) {
@@ -244,5 +270,20 @@ public class Keys {
         }
         // PGPPublicKeyRingCollection.removePublicKeyRing(publicKeys, )
 
+    }
+
+    public PGPPublicKey findKey(long keyID) {
+        if(publicKeys == null)
+            return null;
+
+        try{
+            PGPPublicKey pgpPubKey = publicKeys.getPublicKey(keyID);
+            return pgpPubKey;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

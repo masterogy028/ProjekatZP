@@ -77,4 +77,12 @@ public class KeyModel {
     public void setSecretRing(PGPSecretKeyRing secretRing) {
         this.secretRing = secretRing;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "name=" + name.getValue() +
+                ", email=" + email.getValue() +
+                '}';
+    }
 }

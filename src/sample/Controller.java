@@ -25,6 +25,7 @@ import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyEncryptorBuilder;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -37,7 +38,11 @@ public class Controller implements Initializable {
     @FXML
     private TextArea myTextAreaMessage;
     @FXML
+    private TextArea myResultMessage;
+    @FXML
     private Button EncryptButton;
+    @FXML
+    private Button DecryptButton;
 
     @FXML
     private Label selectPrivatekeyLabel;
@@ -60,6 +65,8 @@ public class Controller implements Initializable {
     private Label selectedKeysLabel;
     @FXML
     private Label toSelectedKeysLabel;
+    @FXML
+    private Label wrongPasswordLabel;
     @FXML
     private Label noKeySelectedLabel;
     @FXML
@@ -107,7 +114,10 @@ public class Controller implements Initializable {
     @FXML
     private Button finishKey;
     private Scene scene;
-    public static KeyModel currentSelected;
+    public static KeyModel currentSelected = null;
+    public static KeyModel currentSelectedPrivateKey = null;
+
+
 
     @FXML
     private void handleDsaSizeRadiobox(ActionEvent event) throws IOException {
@@ -151,7 +161,7 @@ public class Controller implements Initializable {
     private void handleEncryptButtonAction(ActionEvent event) throws IOException {
 
         if(selected.size() == 0 && EncryptCheckBox.selectedProperty().getValue()) return;
-
+        if(SignatureCheckBox.selectedProperty().getValue() && currentSelectedPrivateKey == null) return;
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PGP files (*.pgp)", "*.pgp");
         fc.getExtensionFilters().add(extFilter);
@@ -163,10 +173,34 @@ public class Controller implements Initializable {
             Iterator<PGPPublicKey> it = selected.iterator().next().getPublicRing().getPublicKeys();
             PGPPublicKey masterKey =  it.next();
             PGPPublicKey subKey =  it.next();
-            fos.write(EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(), subKey,
-                    false, false , false));
+            byte array[];
+            if(currentSelectedPrivateKey!=null)
+                array  = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(), subKey,currentSelectedPrivateKey.getSecretRing().getSecretKey(), passphraseTextField.getText(),
+                    radixCheckBox.isSelected(), ZipCheckBox.isSelected() , EncryptCheckBox.isSelected(), SignatureCheckBox.isSelected());
+            else 
+                array = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(), subKey,null, passphraseTextField.getText(),
+                        radixCheckBox.isSelected(), ZipCheckBox.isSelected() , EncryptCheckBox.isSelected(), SignatureCheckBox.isSelected());
+            if(array == null) {noKeySelectedLabel.setText("Wrong passphrase for private key!"); noKeySelectedLabel.setVisible(true); return;}
+            fos.write(array);
 
         } catch (PGPException e) {
+            e.printStackTrace();
+        }
+
+    }
+    @FXML
+    private void handleDecryptButtonAction(ActionEvent event) throws IOException {
+
+        FileChooser fc = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PGP files (*.pgp)", "*.pgp");
+        fc.getExtensionFilters().add(extFilter);
+
+        File file = fc.showOpenDialog(Main.mainStage);
+
+        FileInputStream fos = new FileInputStream(file);
+        try {
+            myResultMessage.setText(EncryptDecrypt.decrypt( fos, file));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -277,6 +311,9 @@ public class Controller implements Initializable {
 
                     }
             );
+            selectPrivateKeyComboBox.setItems(data);
+            selectPrivateKeyComboBox.valueProperty().addListener((obs, oldVal, newVal) ->
+                    currentSelectedPrivateKey = (KeyModel)newVal);
             SignatureCheckBox.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {

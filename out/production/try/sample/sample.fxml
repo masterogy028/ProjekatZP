@@ -90,7 +90,7 @@
                            <children>
                               <BorderPane prefHeight="546.0" prefWidth="800.0">
                                  <left>
-                                    <TextArea prefHeight="547.0" prefWidth="535.0" BorderPane.alignment="CENTER">
+                                    <TextArea fx:id="myTextAreaMessage" prefHeight="547.0" prefWidth="535.0" BorderPane.alignment="CENTER">
                                        <BorderPane.margin>
                                           <Insets bottom="25.0" left="8.0" right="8.0" top="8.0" />
                                        </BorderPane.margin>
@@ -126,7 +126,7 @@
                                                </VBox.margin>
                                            </Label>
                                            <Label fx:id="selectedKeysLabel" text="key" visible="false" />
-                                          <Button fx:id="EncryptButton" mnemonicParsing="false" text="Encrypt" />
+                                          <Button fx:id="EncryptButton" mnemonicParsing="false" onAction="#handleEncryptButtonAction" text="Encrypt" />
                                        </children>
                                     </VBox>
                                  </right>
@@ -142,14 +142,14 @@
                                  <right>
                                     <VBox prefHeight="546.0" prefWidth="243.0" BorderPane.alignment="CENTER">
                                        <children>
-                                          <Label text="No key selected" textFill="RED" />
+                                          <Label fx:id="wrongPasswordLabel" text="No key selected" textFill="RED" />
                                           <Label text="Encryption" />
                                           <CheckBox mnemonicParsing="false" text="CheckBox" />
                                           <Label text="Radix-64" />
                                           <CheckBox mnemonicParsing="false" text="CheckBox" />
                                           <Label text="ZIP" />
                                           <CheckBox mnemonicParsing="false" text="CheckBox" />
-                                          <Button alignment="BOTTOM_CENTER" contentDisplay="BOTTOM" mnemonicParsing="false" text="Decrypt">
+                                          <Button fx:id="DecryptButton" alignment="BOTTOM_CENTER" contentDisplay="BOTTOM" mnemonicParsing="false" onAction="#handleDecryptButtonAction" text="Decrypt">
                                              <VBox.margin>
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </VBox.margin>
@@ -165,7 +165,7 @@
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </VBox.margin>
                                           </Button>
-                                          <TextArea disable="true" prefHeight="471.0" prefWidth="534.0">
+                                          <TextArea fx:id="myResultMessage" disable="true" prefHeight="471.0" prefWidth="534.0">
                                              <VBox.margin>
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </VBox.margin>
