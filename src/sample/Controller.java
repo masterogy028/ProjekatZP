@@ -17,6 +17,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
@@ -170,18 +171,28 @@ public class Controller implements Initializable {
 
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            Iterator<PGPPublicKey> it = selected.iterator().next().getPublicRing().getPublicKeys();
-            PGPPublicKey masterKey =  it.next();
-            PGPPublicKey subKey =  it.next();
+            PGPPublicKey masterKey = null;
+            PGPPublicKey subKey = null;
+            if(EncryptCheckBox.selectedProperty().getValue()) {
+                Iterator<PGPPublicKey> it = selected.iterator().next().getPublicRing().getPublicKeys();
+                masterKey =  it.next();
+                subKey =  it.next();
+
+            }
+
             byte array[];
+
+            System.out.println(masterKey.getKeyID()+"\n" + subKey.getKeyID() + "\n" + currentSelectedPrivateKey.getSecretRing().getSecretKey().getKeyID()+ "\n");
+
             if(currentSelectedPrivateKey!=null)
-                array  = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(), subKey,currentSelectedPrivateKey.getSecretRing().getSecretKey(), passphraseTextField.getText(),
-                    radixCheckBox.isSelected(), ZipCheckBox.isSelected() , EncryptCheckBox.isSelected(), SignatureCheckBox.isSelected());
-            else 
-                array = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(), subKey,null, passphraseTextField.getText(),
-                        radixCheckBox.isSelected(), ZipCheckBox.isSelected() , EncryptCheckBox.isSelected(), SignatureCheckBox.isSelected());
+                array  = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(),myTextAreaMessage.getText(), subKey,currentSelectedPrivateKey.getSecretRing().getSecretKey(), passphraseTextField.getText(),
+                    radixCheckBox.isSelected(), ZipCheckBox.isSelected() , EncryptCheckBox.isSelected(), SignatureCheckBox.isSelected(), file.getName());
+            else
+                array = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(),myTextAreaMessage.getText(),  subKey,null, passphraseTextField.getText(),
+                     radixCheckBox.isSelected(), ZipCheckBox.isSelected() , EncryptCheckBox.isSelected(), SignatureCheckBox.isSelected(), file.getName());
             if(array == null) {noKeySelectedLabel.setText("Wrong passphrase for private key!"); noKeySelectedLabel.setVisible(true); return;}
             fos.write(array);
+            fos.close();
 
         } catch (PGPException e) {
             e.printStackTrace();
@@ -313,7 +324,8 @@ public class Controller implements Initializable {
             );
             selectPrivateKeyComboBox.setItems(data);
             selectPrivateKeyComboBox.valueProperty().addListener((obs, oldVal, newVal) ->
-                    currentSelectedPrivateKey = (KeyModel)newVal);
+                    currentSelectedPrivateKey = (KeyModel) selectPrivateKeyComboBox.getValue());
+
             SignatureCheckBox.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
