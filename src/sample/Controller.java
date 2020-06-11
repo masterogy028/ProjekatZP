@@ -182,7 +182,7 @@ public class Controller implements Initializable {
 
             byte array[];
 
-            System.out.println(masterKey.getKeyID()+"\n" + subKey.getKeyID() + "\n" + currentSelectedPrivateKey.getSecretRing().getSecretKey().getKeyID()+ "\n");
+            //System.out.println(masterKey.getKeyID()+"\n" + subKey.getKeyID() + "\n" + currentSelectedPrivateKey.getSecretRing().getSecretKey().getKeyID()+ "\n");
 
             if(currentSelectedPrivateKey!=null)
                 array  = EncryptDecrypt.encrypt(myTextAreaMessage.getText().getBytes(),myTextAreaMessage.getText(), subKey,currentSelectedPrivateKey.getSecretRing().getSecretKey(), passphraseTextField.getText(),

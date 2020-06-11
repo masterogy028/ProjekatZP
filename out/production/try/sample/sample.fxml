@@ -165,7 +165,7 @@
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </VBox.margin>
                                           </Button>
-                                          <TextArea fx:id="myResultMessage" disable="true" prefHeight="471.0" prefWidth="534.0">
+                                          <TextArea fx:id="myResultMessage" editable="false" prefHeight="471.0" prefWidth="534.0">
                                              <VBox.margin>
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                              </VBox.margin>
